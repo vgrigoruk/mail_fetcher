@@ -24,6 +24,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "mail"
   spec.add_dependency "gmail_xoauth"
-  spec.add_dependency "faraday", "~> 0.8.9"
-  spec.add_dependency "faraday_middleware", "~> 0.9.0"
+  spec.add_dependency "faraday"
+  spec.add_dependency "faraday_middleware"
 end

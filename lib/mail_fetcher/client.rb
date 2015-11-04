@@ -1,14 +1,14 @@
+require_relative 'gmail_client'
+require_relative 'mail_catcher_client'
+
 module MailFetcher
   class Client
     class << self
       attr_accessor :server_type, :max_wait_time, :host, :port, :client_id, :client_secret, :account, :refresh_token, :clean_inbox
 
-      def initialize
+      def configure
         self.max_wait_time = 30
         self.clean_inbox = false
-      end
-
-      def configure
         yield self
       end
 

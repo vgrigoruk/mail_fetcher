@@ -6,6 +6,7 @@ require_relative 'retry_helper'
 
 module MailFetcher
   class GmailClient
+    include MailFetcher::RetryHelper
 
     HOST = 'imap.gmail.com'
     PORT = 993
@@ -17,7 +18,7 @@ module MailFetcher
       @refresh_token = refresh_token
     end
 
-    def find(recipient, subject='', wait=1)
+    def find(recipient, subject='', wait=MailFetcher::Client.max_wait_time)
       @connection ||= authenticated_connection
 
       message_id = eventually(:tries => wait, :delay => 1) do
@@ -52,11 +53,11 @@ module MailFetcher
       params['grant_type'] = 'refresh_token'
       request_url = 'https://accounts.google.com'
       conn = Faraday.new(:url => request_url) do |faraday|
-        faraday.request  :url_encoded
-        faraday.adapter  Faraday.default_adapter
+        faraday.request :url_encoded
+        faraday.adapter Faraday.default_adapter
       end
 
-      response = conn.post('/o/oauth2/refresh_token', params)
+      response = conn.post('/o/oauth2/token', params)
       JSON.parse(response.body)['access_token']
     end
   end

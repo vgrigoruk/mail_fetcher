@@ -1,6 +1,6 @@
 module MailFetcher
   class EmailMessage
-    URL_PATTERN = /https?:\/\/[\S]+/
+    URL_PATTERN = /https?:\/\/[_a-zA-Z0-9\.\/?=&-]+/
 
     def initialize(connection, message_id)
       @connection = connection
