@@ -1,31 +1,15 @@
 module MailFetcher
   class Client
     class << self
-      @@timeout = 30
-      @@clean_inbox = false
+      attr_accessor :server_type, :max_wait_time, :host, :port, :client_id, :client_secret, :account, :refresh_token, :clean_inbox
+
+      def initialize
+        self.max_wait_time = 30
+        self.clean_inbox = false
+      end
 
       def configure
         yield self
-      end
-
-      def server_type=(backend_type)
-        @@server_type = backend_type
-      end
-
-      def default_wait_time=(seconds)
-        @@timeout = seconds
-      end
-
-      def host=(host)
-        @@host = host
-      end
-
-      def port=(port)
-        @@port = port
-      end
-
-      def clean_inbox=(should_clean)
-        @@clean_inbox = should_clean
       end
 
       def find(*args)
@@ -35,12 +19,12 @@ module MailFetcher
       protected
 
       def client
-        @@client ||= begin
-          case @@server_type
+        @client ||= begin
+          case server_type
             when :mail_catcher
-              MailCatcherClient.new(@@host, @@port, clean_inbox = @@clean_inbox)
+              MailCatcherClient.new(host, port, clean_inbox = clean_inbox)
             when :gmail
-              GmailClient.new(@@host, @@port, @@email, @@token, @@secret)
+              GmailClient.new(account, client_id, client_secret, refresh_token)
             else
               raise InvalidArgument.new('Unsupported mail_fetcher')
           end

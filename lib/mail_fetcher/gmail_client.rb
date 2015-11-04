@@ -7,13 +7,14 @@ require_relative 'retry_helper'
 module MailFetcher
   class GmailClient
 
-    def initialize(host='imap.gmail.com', port=993, account, client_id, token, secret)
-      @host = host
-      @port = port
+    HOST = 'imap.gmail.com'
+    PORT = 993
+
+    def initialize(account, client_id, client_secret, refresh_token)
       @account = account
       @client_id = client_id
-      @token = token
-      @secret = secret
+      @client_secret = client_secret
+      @refresh_token = refresh_token
     end
 
     def find(recipient, subject='', wait=1)
@@ -38,16 +39,16 @@ module MailFetcher
     private
 
     def authenticated_connection
-      connection = Net::IMAP.new(@host, @port, usessl = true, certs = nil, verify = false)
-      connection.authenticate('XOAUTH2', @account, options)
+      connection = Net::IMAP.new(HOST, PORT, usessl = true, certs = nil, verify = false)
+      connection.authenticate('XOAUTH2', @account, get_access_token)
       connection
     end
 
-    def get_token
+    def get_access_token
       params = {}
       params['client_id'] = @client_id
-      params['client_secret'] = @secret
-      params['refresh_token'] = @token
+      params['client_secret'] = @client_secret
+      params['refresh_token'] = @refresh_token
       params['grant_type'] = 'refresh_token'
       request_url = 'https://accounts.google.com'
       conn = Faraday.new(:url => request_url) do |faraday|
@@ -55,7 +56,7 @@ module MailFetcher
         faraday.adapter  Faraday.default_adapter
       end
 
-      response = conn.post('/o/oauth2/token', params)
+      response = conn.post('/o/oauth2/refresh_token', params)
       JSON.parse(response.body)['access_token']
     end
   end
