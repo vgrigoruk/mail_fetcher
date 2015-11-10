@@ -4,6 +4,9 @@ require_relative 'mail_catcher_message'
 
 module MailFetcher
   class MailCatcherClient
+
+    attr_accessor :logger
+
     def initialize(host, port, clean_inbox=false)
       base_url = "http://#{host}:#{port}"
       @connection = Faraday.new base_url do |conn|

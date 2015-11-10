@@ -11,6 +11,8 @@ module MailFetcher
     HOST = 'imap.gmail.com'
     PORT = 993
 
+    attr_accessor :logger
+
     def initialize(account, client_id, client_secret, refresh_token)
       @account = account
       @client_id = client_id
@@ -26,10 +28,10 @@ module MailFetcher
           @connection.examine('INBOX')
           search_filter = ['TO', recipient, 'SUBJECT', subject]
           results = @connection.search(search_filter)
-          logger.error("Inbox contains #{results.length} messages matching search criteria") if results.length > 1
+          logger.error("Inbox contains #{results.length} messages matching search criteria") if logger && results.length > 1
           results.first
         rescue => e
-          logger.error("Error while trying trying to find a message in INBOX (#{e.message})")
+          logger.error("Error while trying trying to find a message in INBOX (#{e.message})") if logger
           nil
         end
       end
@@ -53,8 +55,8 @@ module MailFetcher
       params['grant_type'] = 'refresh_token'
       request_url = 'https://accounts.google.com'
       conn = Faraday.new(:url => request_url) do |faraday|
-        faraday.request :url_encoded
-        faraday.adapter Faraday.default_adapter
+        faraday.request  :url_encoded
+        faraday.adapter  Faraday.default_adapter
       end
 
       response = conn.post('/o/oauth2/token', params)
