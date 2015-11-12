@@ -28,9 +28,11 @@ module MailFetcher
           @connection.examine('INBOX')
           search_filter = ['TO', recipient, 'SUBJECT', subject]
           results = @connection.search(search_filter)
-          logger.error("Inbox contains #{results.length} messages matching search criteria") if logger && results.length > 1
+          puts logger.class if logger
+          logger.debug("Inbox contains #{results.length} messages matching search criteria") if logger
           results.first
         rescue => e
+          puts e.message
           logger.error("Error while trying trying to find a message in INBOX (#{e.message})") if logger
           nil
         end

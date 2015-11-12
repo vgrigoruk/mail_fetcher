@@ -37,7 +37,7 @@ module MailFetcher
           else
             raise InvalidArgument.new('Unsupported server type')
         end
-        _client.logger = self.logger if self.logger
+        _client.logger = logger
         _client
       end
 
